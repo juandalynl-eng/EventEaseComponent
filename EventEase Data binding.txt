@@ -1,0 +1,28 @@
+@page "/events"
+
+@foreach (var ev in Events)
+{
+    <EventCard Event="ev" />
+}
+
+@code {
+    private List<EventModel> Events = new()
+    {
+        new EventModel
+        {
+            EventName = "Tech Innovators Summit",
+            EventDate = new DateTime(2026, 3, 15),
+            Location = "Baltimore Convention Center"
+        },
+        new EventModel
+        {
+            EventName = "Design Expo",
+            EventDate = new DateTime(2026, 4, 2),
+            Location = "Washington, DC"
+        }
+    };
+}
+
+
+
+
