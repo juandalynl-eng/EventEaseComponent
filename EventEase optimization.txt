@@ -1,0 +1,39 @@
+<EditForm @key="Event?.Id"
+          Model="Registration"
+          OnValidSubmit="HandleSubmit">
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText @bind-Value="Registration.Name"
+               placeholder="Your Name"
+               class="form-control" />
+    <ValidationMessage For="@(() => Registration.Name)" />
+
+    <br />
+    <button class="btn btn-primary">Submit Registration</button>
+</EditForm>
+
+@if (ShowDetails)
+{
+    <EventDetailsComponent EventId="Id" />
+}
+
+@if (Events is not null)
+{
+    <Virtualize Items="@Events" Context="evt">
+        <EventCard Event="evt" />
+    </Virtualize>
+}
+
+
+
+
+
+
+
+
+
+
+
+
