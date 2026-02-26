@@ -1,0 +1,56 @@
+@page "/events/{id:int}/register"
+@inject EventService EventService
+@inject NavigationManager NavigationManager
+
+<h2>@Event?.EventName</h2>
+
+@if (Event is null)
+{
+    <p class="text-danger">Event not found.</p>
+    <NavLink href="/events">Back to Events</NavLink>
+}
+else
+{
+    <EditForm Model="Registration" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <InputText @bind-Value="Registration.Name"
+                   placeholder="Your Name"
+                   class="form-control" />
+        <ValidationMessage For="@(() => Registration.Name)" />
+
+        <br />
+        <button class="btn btn-primary">Submit Registration</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    public EventModel? Event { get; set; }
+    public RegistrationModel Registration { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        Event = EventService.GetEventById(Id);
+
+        if (Event is null)
+        {
+            // Optional redirect
+            // NavigationManager.NavigateTo("/events/not-found");
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        // Save registration logic
+    }
+}
+
+
+
+
+
+
+
