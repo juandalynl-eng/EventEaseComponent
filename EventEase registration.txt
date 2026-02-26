@@ -1,0 +1,46 @@
+<EditForm Model="Registration" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <InputText @bind-Value="Registration.FirstName" class="form-control" placeholder="First Name" />
+        <ValidationMessage For="@(() => Registration.FirstName)" />
+    </div>
+
+    <div class="mb-3">
+        <InputText @bind-Value="Registration.LastName" class="form-control" placeholder="Last Name" />
+        <ValidationMessage For="@(() => Registration.LastName)" />
+    </div>
+
+    <div class="mb-3">
+        <InputText @bind-Value="Registration.Email" class="form-control" placeholder="Email" />
+        <ValidationMessage For="@(() => Registration.Email)" />
+    </div>
+
+    <button class="btn btn-primary">Register</button>
+</EditForm>
+
+@code {
+    [Parameter] public int EventId { get; set; }
+
+    public RegistrationModel Registration { get; set; } = new();
+
+    private void HandleSubmit()
+    {
+        // Save registration and update attendance tracker
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
