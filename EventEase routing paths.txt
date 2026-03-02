@@ -1,0 +1,50 @@
+@page "/events/{id:int}/register"
+
+<h2>@Event?.EventName</h2>
+
+@if (Event is not null)
+{
+    <EditForm Model="Registration" OnValidSubmit="HandleSubmit">
+        <InputText @bind-Value="Registration.Name"
+                   placeholder="Your Name"
+                   class="form-control" />
+        <br />
+        <button class="btn btn-primary">Submit Registration</button>
+    </EditForm>
+}
+else
+{
+    <p>Loading event...</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    // Nullable so @Event?.EventName is valid
+    public EventModel? Event { get; set; }
+
+    public RegistrationModel Registration { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        // Mock lookup — replace with service call later
+        Event = new EventModel
+        {
+            Id = Id,
+            EventName = "Sample Event",
+            EventDate = DateTime.Now.AddDays(5),
+            Location = "Baltimore"
+        };
+    }
+
+    private void HandleSubmit()
+    {
+        // Save registration logic
+    }
+}
+
+
+
+
+
+
