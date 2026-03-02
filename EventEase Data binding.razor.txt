@@ -1,0 +1,75 @@
+<div class="event-card" @onclick="NavigateToDetails">
+    <h3 class="event-name">@EventName</h3>
+    <p class="event-date">@EventDate.ToString("MMMM dd, yyyy")</p>
+    <p class="event-location">@Location</p>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Parameter] public string EventName { get; set; } = string.Empty;
+    [Parameter] public DateTime EventDate { get; set; }
+    [Parameter] public string Location { get; set; } = string.Empty;
+
+    [Inject] NavigationManager Nav { get; set; } = default!;
+
+    private void NavigateToDetails()
+    {
+        Nav.NavigateTo($"/events/{Id}");
+    }
+}
+@foreach (var ev in Events)
+{
+    <EventCard 
+        Id="@ev.Id"
+        EventName="@ev.Name"
+        EventDate="@ev.Date"
+        Location="@ev.Location" />
+}
+@page "/events/{id:int}"
+
+@if (IsInvalid)
+{
+    <p>Redirecting...</p>
+}
+else if (Event is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h3>@Event.Name</h3>
+    <p>@Event.Date.ToString("MMMM dd, yyyy")</p>
+    <p>@Event.Location</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    public EventModel? Event { get; set; }
+    public bool IsInvalid { get; set; }
+
+    [Inject] NavigationManager Nav { get; set; } = default!;
+    [Inject] IEventService EventService { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Event = await EventService.GetEventById(Id);
+
+        if (Event is null)
+        {
+            IsInvalid = true;
+            Nav.NavigateTo("/not-found");
+        }
+    }
+}
+<Virtualize Items="@Events" Context="ev">
+    <EventCard
+        Id="@ev.Id"
+        EventName="@ev.Name"
+        EventDate="@ev.Date"
+        Location="@ev.Location" />
+</Virtualize>
+
+
+
+
