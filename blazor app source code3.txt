@@ -1,0 +1,162 @@
+@inject NavigationManager Nav
+@inject AttendanceTrackerService AttendanceTracker
+@inject UserSessionService UserSession
+
+<div class="event-card" @onclick="NavigateToDetails">
+    <h3 class="event-name">@EventName</h3>
+    <p class="event-date">@EventDate.ToString("MMMM dd, yyyy")</p>
+    <p class="event-location">@Location</p>
+
+    <p>Attending: @AttendanceTracker.GetCount(Id)</p>
+
+    @if (UserSession.IsLoggedIn && AttendanceTracker.IsAttending(Id, UserSession.UserId!))
+    {
+        <span class="badge bg-success">You’re registered</span>
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Parameter] public string EventName { get; set; } = string.Empty;
+    [Parameter] public DateTime EventDate { get; set; }
+    [Parameter] public string Location { get; set; } = string.Empty;
+
+    private void NavigateToDetails()
+    {
+        if (Id <= 0) return;
+        Nav.NavigateTo($"/events/{Id}");
+    }
+}
+@page "/events"
+@inject IEventService EventService
+
+@if (Events is null)
+{
+    <p>Loading events...</p>
+}
+else
+{
+    <Virtualize Items="@Events" Context="ev">
+        <EventCard
+            Id="@ev.Id"
+            EventName="@ev.Name"
+            EventDate="@ev.Date"
+            Location="@ev.Location" />
+    </Virtualize>
+}
+
+@code {
+    private List<EventModel>? Events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Events = (await EventService.GetAllEvents()).ToList();
+    }
+}
+@inject UserSessionService UserSession
+@inject AttendanceTrackerService AttendanceTracker
+
+<EditForm Model="_model" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>First Name</label>
+        <InputText @bind-Value="_model.FirstName" />
+        <ValidationMessage For="@(() => _model.FirstName)" />
+    </div>
+
+    <div>
+        <label>Last Name</label>
+        <InputText @bind-Value="_model.LastName" />
+        <ValidationMessage For="@(() => _model.LastName)" />
+    </div>
+
+    <div>
+        <label>Email</label>
+        <InputText @bind-Value="_model.Email" />
+        <ValidationMessage For="@(() => _model.Email)" />
+    </div>
+
+    <button type="submit">Register</button>
+
+    @if (_message is not null)
+    {
+        <p class="text-success">@_message</p>
+    }
+</EditForm>
+
+@code {
+    [Parameter] public int EventId { get; set; }
+
+    private RegistrationModel _model = new();
+    private string? _message;
+
+    protected override void OnParametersSet()
+    {
+        _model.EventId = EventId;
+    }
+
+    private void Submit()
+    {
+        var userId = _model.Email.Trim().ToLowerInvariant();
+
+        UserSession.SetUser(userId, _model.Email);
+        AttendanceTracker.MarkAttendance(EventId, userId);
+
+        _message = "You are registered for this event.";
+    }
+}
+@page "/events/{id:int}"
+@inject NavigationManager Nav
+@inject IEventService EventService
+@inject AttendanceTrackerService AttendanceTracker
+
+@if (IsInvalid)
+{
+    <p>Redirecting...</p>
+}
+else if (Event is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h3>@Event.Name</h3>
+    <p>@Event.Date.ToString("MMMM dd, yyyy")</p>
+    <p>@Event.Location</p>
+
+    <p>Attending: @AttendanceTracker.GetCount(Event.Id)</p>
+
+    <RegistrationForm EventId="@Event.Id" />
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    public EventModel? Event { get; set; }
+    public bool IsInvalid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id <= 0)
+        {
+            IsInvalid = true;
+            Nav.NavigateTo("/not-found");
+            return;
+        }
+
+        Event = await EventService.GetEventById(Id);
+
+        if (Event is null)
+        {
+            IsInvalid = true;
+            Nav.NavigateTo("/not-found");
+        }
+    }
+}
+
+
+
+
+
