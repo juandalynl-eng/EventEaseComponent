@@ -1,0 +1,19 @@
+<div class="event-card">
+    <h3>@EventName</h3>
+    <p>@EventDate.ToString("MMMM dd, yyyy")</p>
+    <p>@Location</p>
+
+    <label>
+        <input type="checkbox" @bind="IsSelected" />
+        Select Event
+    </label>
+</div>
+
+@code {
+    [Parameter] public string EventName { get; set; } = string.Empty;
+    [Parameter] public DateTime EventDate { get; set; }
+    [Parameter] public string Location { get; set; } = string.Empty;
+
+    [Parameter] public bool IsSelected { get; set; }
+    [Parameter] public EventCallback<bool> IsSelectedChanged { get; set; }
+}
